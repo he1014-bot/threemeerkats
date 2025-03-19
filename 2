@@ -1,0 +1,92 @@
+#include <iostream>
+#include <vector>
+#include <stack>
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+// 1. 找到中序后继
+TreeNode* inorderSuccessor(TreeNode* root, TreeNode* p) {
+    TreeNode* successor = NULL;
+    while (root) {
+        if (p->val < root->val) {
+            successor = root;
+            root = root->left;
+        } else {
+            root = root->right;
+        }
+    }
+    return successor;
+}
+
+// 2. 计算范围内节点值的和
+int rangeSumBST(TreeNode* root, int low, int high) {
+    if (!root) return 0;
+    if (root->val > high) return rangeSumBST(root->left, low, high);
+    if (root->val < low) return rangeSumBST(root->right, low, high);
+    return root->val + rangeSumBST(root->left, low, high) + rangeSumBST(root->right, low, high);
+}
+
+// 3. 合并两个BST
+void inorder(TreeNode* root, vector<int>& nums) {
+    if (!root) return;
+    inorder(root->left, nums);
+    nums.push_back(root->val);
+    inorder(root->right, nums);
+}
+
+vector<int> getAllElements(TreeNode* root1, TreeNode* root2) {
+    vector<int> nums1, nums2;
+    inorder(root1, nums1);
+    inorder(root2, nums2);
+    
+    vector<int> result;
+    int i = 0, j = 0;
+    while (i < nums1.size() && j < nums2.size()) {
+        if (nums1[i] < nums2[j]) {
+            result.push_back(nums1[i++]);
+        } else {
+            result.push_back(nums2[j++]);
+        }
+    }
+    while (i < nums1.size()) result.push_back(nums1[i++]);
+    while (j < nums2.size()) result.push_back(nums2[j++]);
+    return result;
+}
+
+// 测试代码
+int main() {
+    // 创建测试BST
+    TreeNode* root = new TreeNode(4);
+    root->left = new TreeNode(2);
+    root->right = new TreeNode(6);
+    root->left->left = new TreeNode(1);
+    root->left->right = new TreeNode(3);
+    root->right->left = new TreeNode(5);
+    root->right->right = new TreeNode(7);
+    
+    // 测试中序后继
+    TreeNode* p = root->left->right; // 节点3
+    TreeNode* succ = inorderSuccessor(root, p);
+    cout << "Inorder successor of 3 is: " << (succ ? to_string(succ->val) : "NULL") << endl;
+    
+    // 测试范围求和
+    int sum = rangeSumBST(root, 3, 5);
+    cout << "Sum of nodes between 3 and 5: " << sum << endl;
+    
+    // 测试合并两个BST
+    TreeNode* root2 = new TreeNode(8);
+    root2->left = new TreeNode(0);
+    root2->right = new TreeNode(9);
+    vector<int> merged = getAllElements(root, root2);
+    cout << "Merged BST elements: ";
+    for (int num : merged) cout << num << " ";
+    cout << endl;
+    
+    return 0;
+}
