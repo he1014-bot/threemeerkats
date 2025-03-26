@@ -1,0 +1,74 @@
+#include <iostream>
+#include <algorithm>
+#include <vector>
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode* left;
+    TreeNode* right;
+    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+};
+
+bool isBST(TreeNode* root, TreeNode* minNode = nullptr, TreeNode* maxNode = nullptr) {
+    if (!root) return true;
+    if ((minNode && root->val <= minNode->val) || (maxNode && root->val >= maxNode->val))
+        return false;
+    return isBST(root->left, minNode, root) && isBST(root->right, root, maxNode);
+}
+
+int getHeight(TreeNode* root) {
+    if (!root) return 0;
+    return 1 + max(getHeight(root->left), getHeight(root->right));
+}
+
+bool isBalanced(TreeNode* root) {
+    if (!root) return true;
+    int leftHeight = getHeight(root->left);
+    int rightHeight = getHeight(root->right);
+    if (abs(leftHeight - rightHeight) > 1)
+        return false;
+    return isBalanced(root->left) && isBalanced(root->right);
+}
+
+bool isAVL(TreeNode* root) {
+    return isBST(root) && isBalanced(root);
+}
+
+// Interactive tree builder
+TreeNode* buildTree() {
+    int n, val, left, right;
+    cout << "Enter number of nodes: ";
+    cin >> n;
+    
+    if (n == 0) {
+        return nullptr;
+    }
+    
+    vector<TreeNode*> nodes(n+1, nullptr);
+    for(int i=1; i<=n; i++) {
+        cout << "Enter node " << i << " value: ";
+        cin >> val;
+        nodes[i] = new TreeNode(val);
+    }
+    
+    for(int i=1; i<=n; i++) {
+        cout << "Enter left and right child for node " << i << " (0 for null): ";
+        cin >> left >> right;
+        if(left != 0) nodes[i]->left = nodes[left];
+        if(right != 0) nodes[i]->right = nodes[right];
+    }
+    
+    return nodes[1]; // return root
+}
+
+int main() {
+    TreeNode* root = buildTree();
+    
+    if (!root || isAVL(root))
+        cout << "The tree is a valid AVL tree" << endl;
+    else
+        cout << "The tree is NOT a valid AVL tree" << endl;
+
+    return 0;
+}
