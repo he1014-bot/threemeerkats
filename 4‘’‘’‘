@@ -1,0 +1,110 @@
+#include <iostream>
+#include <algorithm>
+#include <climits>
+#include <vector>
+#include <queue>
+
+using namespace std;
+
+// 二叉树节点结构
+struct TreeNode {
+    int val;
+    TreeNode* left;
+    TreeNode* right;
+    
+    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+};
+
+class Solution {
+public:
+    bool isAVLTree(TreeNode* root) {
+        cout << "开始检查AVL树..." << endl;
+        if (root == nullptr) {
+            cout << "空树是有效的AVL树" << endl;
+            return true;
+        }
+        
+        auto result = isBSTAndAVL(root, INT_MIN, INT_MAX);
+        cout << "树高: " << result.second << endl;
+        return result.first;
+    }
+    
+private:
+    pair<bool, int> isBSTAndAVL(TreeNode* root, int minVal, int maxVal) {
+        if (root == nullptr) return {true, 0};
+        
+        cout << "检查节点: " << root->val << endl;
+        
+        if (root->val <= minVal || root->val >= maxVal) {
+            cout << "节点" << root->val << "违反BST规则" << endl;
+            return {false, 0};
+        }
+        
+        auto left = isBSTAndAVL(root->left, minVal, root->val);
+        if (!left.first) return {false, 0};
+        
+        auto right = isBSTAndAVL(root->right, root->val, maxVal);
+        if (!right.first) return {false, 0};
+        
+        int balance = left.second - right.second;
+        cout << "节点" << root->val << "的平衡因子: " << balance << endl;
+        
+        if (balance < -1 || balance > 1) {
+            cout << "节点" << root->val << "不平衡" << endl;
+            return {false, 0};
+        }
+        
+        return {true, 1 + max(left.second, right.second)};
+    }
+};
+
+TreeNode* buildTree() {
+    int n;
+    cout << "输入节点数: ";
+    cin >> n;
+    
+    if (n == 0) return nullptr;
+    
+    vector<int> values(n);
+    cout << "输入节点值(空格分隔): ";
+    for (int i = 0; i < n; ++i) {
+        cin >> values[i];
+    }
+    
+    queue<TreeNode*> q;
+    TreeNode* root = new TreeNode(values[0]);
+    q.push(root);
+    
+    for (int i = 1; i < n; ) {
+        TreeNode* curr = q.front();
+        q.pop();
+        
+        if (i < n) {
+            curr->left = new TreeNode(values[i++]);
+            q.push(curr->left);
+        }
+        if (i < n) {
+            curr->right = new TreeNode(values[i++]);
+            q.push(curr->right);
+        }
+    }
+    
+    return root;
+}
+
+void deleteTree(TreeNode* root) {
+    if (!root) return;
+    deleteTree(root->left);
+    deleteTree(root->right);
+    delete root;
+}
+
+int main() {
+    TreeNode* root = buildTree();
+    Solution solution;
+    
+    cout << "检查结果: " << (solution.isAVLTree(root) ? "是AVL树" : "不是AVL树") << endl;
+    
+    deleteTree(root);
+    return 0;
+}
