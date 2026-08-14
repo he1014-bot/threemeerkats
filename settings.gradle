@@ -1,0 +1,25 @@
+pluginManagement {
+    repositories {
+        google {
+            content {
+                includeGroupByRegex 'com\\.android.*'
+                includeGroupByRegex 'com\\.google.*'
+                includeGroupByRegex 'androidx.*'
+            }
+        }
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+        maven { url 'https://jitpack.io' }
+    }
+}
+
+rootProject.name = '安卓屏连 - 竖屏控制 (extend)'
+include ':app-extend'
+include ':hidden-api-stub' 
